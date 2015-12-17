@@ -1,0 +1,24 @@
+/**
+ * Pistachio common style
+ */
+
+/* preserve space for nav bar */
+body { padding-top: 70px; padding-bottom: 70px;}
+
+
+
+.bg-nav-black {
+    background-image: linear-gradient(bottom, rgb(240,240,240) 3%, rgb(247,247,247) 52%);
+    background-image: -o-linear-gradient(bottom, rgb(240,240,240) 3%, rgb(247,247,247) 52%);
+    background-image: -moz-linear-gradient(bottom, rgb(240,240,240) 3%, rgb(247,247,247) 52%);
+    background-image: -webkit-linear-gradient(bottom, rgb(240,240,240) 3%, rgb(247,247,247) 52%);
+    background-image: -ms-linear-gradient(bottom, rgb(240,240,240) 3%, rgb(247,247,247) 52%);
+
+    background-image: -webkit-gradient(
+            linear,
+            left bottom,
+            left top,
+            color-stop(0.03, rgb(240,240,240)),
+            color-stop(0.52, rgb(247,247,247))
+    );
+}
