@@ -1,1 +1,6 @@
+# node library
 /node_modules
+
+# project files
+.idea
+*.iml
