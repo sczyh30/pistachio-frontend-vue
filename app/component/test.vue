@@ -10,11 +10,11 @@
       </tr>
    </thead>
 	<tbody>
-		<tr v-for="book in books">
-			<td>{{book.id}}</td>
-			<td>{{book.name}}</td>
-			<td>{{book.author}}</td>
-			<td>{{book.price}}</td>
+		<tr v-for="bookd in booksd">
+			<td>{{bookd.id}}</td>
+			<td>{{bookd.name}}</td>
+			<td>{{bookd.author}}</td>
+			<td>{{bookd.price}}</td>
 		</tr>
 	</tbody>
 </table>
@@ -25,7 +25,7 @@
 export default {
 	data() {
 		return {
-			books: [{
+			booksd: [{
                 id: 1,
                 author: '曹雪芹',
                 name: '红楼梦',
@@ -52,5 +52,5 @@ export default {
 </script>
 
 <style>
-	
+
 </style>

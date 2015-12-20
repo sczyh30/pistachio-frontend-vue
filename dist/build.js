@@ -46,58 +46,75 @@
 
 	'use strict';
 	
-	var _vue = __webpack_require__(4);
+	var _vue = __webpack_require__(5);
 	
 	var _vue2 = _interopRequireDefault(_vue);
 	
-	var _vueRouter = __webpack_require__(6);
+	var _vueRouter = __webpack_require__(7);
 	
 	var _vueRouter2 = _interopRequireDefault(_vueRouter);
 	
-	var _app = __webpack_require__(7);
+	var _vueResource = __webpack_require__(8);
+	
+	var _vueResource2 = _interopRequireDefault(_vueResource);
+	
+	var _app = __webpack_require__(16);
 	
 	var _app2 = _interopRequireDefault(_app);
 	
-	var _test = __webpack_require__(14);
+	var _routeConfig = __webpack_require__(23);
 	
-	var _test2 = _interopRequireDefault(_test);
+	var _ = __webpack_require__(27);
 	
-	var _test3 = __webpack_require__(19);
-	
-	var _test4 = _interopRequireDefault(_test3);
+	var _2 = _interopRequireDefault(_);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	//require('../node_modules/bootstrap/dist/css/bootstrap.min.css')
-	__webpack_require__(24);
+	__webpack_require__(35);
+	//require('../node_modules/bootstrap/dist/js/bootstrap.min.js')
+	
+	/*import Test from './component/test.vue'
+	import Test2 from './component/test2.vue'
+	import IndexPage from './component/index.vue'
+	import BookDetail from './component/book_detail.vue'*/
 	
 	_vue2.default.use(_vueRouter2.default);
-	
-	var router = new _vueRouter2.default();
-	
-	router.map({
-	    '/fuck': {
-	        component: _test2.default
-	    },
-	    '/fuck/you': {
-	        component: _test4.default
-	    }
+	_vue2.default.use(_vueResource2.default);
+	//const BookDetail = require('./component/book_detail.vue')
+	var router = new _vueRouter2.default({
+	    saveScrollPosition: true
 	});
 	
-	router.start(_app2.default, '#app0');
+	(0, _routeConfig.configRouter)(router);
 	
-	/*new Vue({
-	  el: '#app0',
-	  components: {
-	    app: App
-	  }
+	/*router.map({
+	    '/book/:bookId': {
+	        component: BookDetail,
+	        name: 'get_book_detail'
+	    },
+	    '/404': {
+	        component: CommonError,
+	        name: 'common_error'
+	    },
+	    '/index': {
+	        component: IndexPage
+	    },
+	    '/fuck': {
+	        component: Test
+	    },
+	    '/fuck/you': {
+	        component: Test2
+	    }
 	})*/
+	
+	router.start(_app2.default, '#ps_app');
 
 /***/ },
 /* 1 */,
 /* 2 */,
 /* 3 */,
-/* 4 */
+/* 4 */,
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/*!
@@ -9531,10 +9548,10 @@
 	}
 	
 	module.exports = Vue;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -9631,7 +9648,7 @@
 
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -12170,14 +12187,920 @@
 	module.exports = Router;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(8)
-	module.exports = __webpack_require__(12)
+	/**
+	 * Install plugin.
+	 */
+	
+	function install(Vue) {
+	
+	    var _ = __webpack_require__(9)(Vue);
+	
+	    Vue.url = __webpack_require__(10)(_);
+	    Vue.http = __webpack_require__(11)(_);
+	    Vue.resource = __webpack_require__(15)(_);
+	
+	    Object.defineProperties(Vue.prototype, {
+	
+	        $url: {
+	            get: function () {
+	                return _.options(Vue.url, this, this.$options.url);
+	            }
+	        },
+	
+	        $http: {
+	            get: function () {
+	                return _.options(Vue.http, this, this.$options.http);
+	            }
+	        },
+	
+	        $resource: {
+	            get: function () {
+	                return Vue.resource.bind(this);
+	            }
+	        }
+	
+	    });
+	}
+	
+	if (window.Vue) {
+	    Vue.use(install);
+	}
+	
+	module.exports = install;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	/**
+	 * Utility functions.
+	 */
+	
+	module.exports = function (Vue) {
+	
+	    var _ = Vue.util.extend({}, Vue.util);
+	
+	    _.isString = function (value) {
+	        return typeof value === 'string';
+	    };
+	
+	    _.isFunction = function (value) {
+	        return typeof value === 'function';
+	    };
+	
+	    _.options = function (fn, obj, options) {
+	
+	        options = options || {};
+	
+	        if (_.isFunction(options)) {
+	            options = options.call(obj);
+	        }
+	
+	        return _.extend(fn.bind({vm: obj, options: options}), fn, {options: options});
+	    };
+	
+	    _.each = function (obj, iterator) {
+	
+	        var i, key;
+	
+	        if (typeof obj.length == 'number') {
+	            for (i = 0; i < obj.length; i++) {
+	                iterator.call(obj[i], obj[i], i);
+	            }
+	        } else if (_.isObject(obj)) {
+	            for (key in obj) {
+	                if (obj.hasOwnProperty(key)) {
+	                    iterator.call(obj[key], obj[key], key);
+	                }
+	            }
+	        }
+	
+	        return obj;
+	    };
+	
+	    _.extend = function (target) {
+	
+	        var array = [], args = array.slice.call(arguments, 1), deep;
+	
+	        if (typeof target == 'boolean') {
+	            deep = target;
+	            target = args.shift();
+	        }
+	
+	        args.forEach(function (arg) {
+	            extend(target, arg, deep);
+	        });
+	
+	        return target;
+	    };
+	
+	    function extend(target, source, deep) {
+	        for (var key in source) {
+	            if (deep && (_.isPlainObject(source[key]) || _.isArray(source[key]))) {
+	                if (_.isPlainObject(source[key]) && !_.isPlainObject(target[key])) {
+	                    target[key] = {};
+	                }
+	                if (_.isArray(source[key]) && !_.isArray(target[key])) {
+	                    target[key] = [];
+	                }
+	                extend(target[key], source[key], deep);
+	            } else if (source[key] !== undefined) {
+	                target[key] = source[key];
+	            }
+	        }
+	    }
+	
+	    return _;
+	};
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	/**
+	 * Service for URL templating.
+	 */
+	
+	var ie = document.documentMode;
+	var el = document.createElement('a');
+	
+	module.exports = function (_) {
+	
+	    function Url(url, params) {
+	
+	        var urlParams = {}, queryParams = {}, options = url, query;
+	
+	        if (!_.isPlainObject(options)) {
+	            options = {url: url, params: params};
+	        }
+	
+	        options = _.extend(true, {},
+	            Url.options, this.options, options
+	        );
+	
+	        url = options.url.replace(/(\/?):([a-z]\w*)/gi, function (match, slash, name) {
+	
+	            if (options.params[name]) {
+	                urlParams[name] = true;
+	                return slash + encodeUriSegment(options.params[name]);
+	            }
+	
+	            return '';
+	        });
+	
+	        if (_.isString(options.root) && !url.match(/^(https?:)?\//)) {
+	            url = options.root + '/' + url;
+	        }
+	
+	        _.each(options.params, function (value, key) {
+	            if (!urlParams[key]) {
+	                queryParams[key] = value;
+	            }
+	        });
+	
+	        query = Url.params(queryParams);
+	
+	        if (query) {
+	            url += (url.indexOf('?') == -1 ? '?' : '&') + query;
+	        }
+	
+	        return url;
+	    }
+	
+	    /**
+	     * Url options.
+	     */
+	
+	    Url.options = {
+	        url: '',
+	        root: null,
+	        params: {}
+	    };
+	
+	    /**
+	     * Encodes a Url parameter string.
+	     *
+	     * @param {Object} obj
+	     */
+	
+	    Url.params = function (obj) {
+	
+	        var params = [];
+	
+	        params.add = function (key, value) {
+	
+	            if (_.isFunction (value)) {
+	                value = value();
+	            }
+	
+	            if (value === null) {
+	                value = '';
+	            }
+	
+	            this.push(encodeUriSegment(key) + '=' + encodeUriSegment(value));
+	        };
+	
+	        serialize(params, obj);
+	
+	        return params.join('&');
+	    };
+	
+	    /**
+	     * Parse a URL and return its components.
+	     *
+	     * @param {String} url
+	     */
+	
+	    Url.parse = function (url) {
+	
+	        if (ie) {
+	            el.href = url;
+	            url = el.href;
+	        }
+	
+	        el.href = url;
+	
+	        return {
+	            href: el.href,
+	            protocol: el.protocol ? el.protocol.replace(/:$/, '') : '',
+	            port: el.port,
+	            host: el.host,
+	            hostname: el.hostname,
+	            pathname: el.pathname.charAt(0) === '/' ? el.pathname : '/' + el.pathname,
+	            search: el.search ? el.search.replace(/^\?/, '') : '',
+	            hash: el.hash ? el.hash.replace(/^#/, '') : ''
+	        };
+	    };
+	
+	    function serialize(params, obj, scope) {
+	
+	        var array = _.isArray(obj), plain = _.isPlainObject(obj), hash;
+	
+	        _.each(obj, function (value, key) {
+	
+	            hash = _.isObject(value) || _.isArray(value);
+	
+	            if (scope) {
+	                key = scope + '[' + (plain || hash ? key : '') + ']';
+	            }
+	
+	            if (!scope && array) {
+	                params.add(value.name, value.value);
+	            } else if (hash) {
+	                serialize(params, value, key);
+	            } else {
+	                params.add(key, value);
+	            }
+	        });
+	    }
+	
+	    function encodeUriSegment(value) {
+	
+	        return encodeUriQuery(value, true).
+	            replace(/%26/gi, '&').
+	            replace(/%3D/gi, '=').
+	            replace(/%2B/gi, '+');
+	    }
+	
+	    function encodeUriQuery(value, spaces) {
+	
+	        return encodeURIComponent(value).
+	            replace(/%40/gi, '@').
+	            replace(/%3A/gi, ':').
+	            replace(/%24/g, '$').
+	            replace(/%2C/gi, ',').
+	            replace(/%20/g, (spaces ? '%20' : '+'));
+	    }
+	
+	    return _.url = Url;
+	};
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Service for sending network requests.
+	 */
+	
+	var xhr = __webpack_require__(12);
+	var jsonp = __webpack_require__(14);
+	var Promise = __webpack_require__(13);
+	
+	module.exports = function (_) {
+	
+	    var originUrl = _.url.parse(location.href);
+	    var jsonType = {'Content-Type': 'application/json;charset=utf-8'};
+	
+	    function Http(url, options) {
+	
+	        var promise;
+	
+	        if (_.isPlainObject(url)) {
+	            options = url;
+	            url = '';
+	        }
+	
+	        options = _.extend({url: url}, options);
+	        options = _.extend(true, {},
+	            Http.options, this.options, options
+	        );
+	
+	        if (options.crossOrigin === null) {
+	            options.crossOrigin = crossOrigin(options.url);
+	        }
+	
+	        options.method = options.method.toUpperCase();
+	        options.headers = _.extend({}, Http.headers.common,
+	            !options.crossOrigin ? Http.headers.custom : {},
+	            Http.headers[options.method.toLowerCase()],
+	            options.headers
+	        );
+	
+	        if (_.isPlainObject(options.data) && /^(GET|JSONP)$/i.test(options.method)) {
+	            _.extend(options.params, options.data);
+	            delete options.data;
+	        }
+	
+	        if (options.emulateHTTP && !options.crossOrigin && /^(PUT|PATCH|DELETE)$/i.test(options.method)) {
+	            options.headers['X-HTTP-Method-Override'] = options.method;
+	            options.method = 'POST';
+	        }
+	
+	        if (options.emulateJSON && _.isPlainObject(options.data)) {
+	            options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+	            options.data = _.url.params(options.data);
+	        }
+	
+	        if (_.isObject(options.data) && /FormData/i.test(options.data.toString())) {
+	            delete options.headers['Content-Type'];
+	        }
+	
+	        if (_.isPlainObject(options.data)) {
+	            options.data = JSON.stringify(options.data);
+	        }
+	
+	        promise = (options.method == 'JSONP' ? jsonp : xhr).call(this.vm, _, options);
+	        promise = extendPromise(promise.then(transformResponse, transformResponse), this.vm);
+	
+	        if (options.success) {
+	            promise = promise.success(options.success);
+	        }
+	
+	        if (options.error) {
+	            promise = promise.error(options.error);
+	        }
+	
+	        return promise;
+	    }
+	
+	    function extendPromise(promise, vm) {
+	
+	        promise.success = function (fn) {
+	
+	            return extendPromise(promise.then(function (response) {
+	                return fn.call(vm, response.data, response.status, response) || response;
+	            }), vm);
+	
+	        };
+	
+	        promise.error = function (fn) {
+	
+	            return extendPromise(promise.then(undefined, function (response) {
+	                return fn.call(vm, response.data, response.status, response) || response;
+	            }), vm);
+	
+	        };
+	
+	        promise.always = function (fn) {
+	
+	            var cb = function (response) {
+	                return fn.call(vm, response.data, response.status, response) || response;
+	            };
+	
+	            return extendPromise(promise.then(cb, cb), vm);
+	        };
+	
+	        return promise;
+	    }
+	
+	    function transformResponse(response) {
+	
+	        try {
+	            response.data = JSON.parse(response.responseText);
+	        } catch (e) {
+	            response.data = response.responseText;
+	        }
+	
+	        return response.ok ? response : Promise.reject(response);
+	    }
+	
+	    function crossOrigin(url) {
+	
+	        var requestUrl = _.url.parse(url);
+	
+	        return (requestUrl.protocol !== originUrl.protocol || requestUrl.host !== originUrl.host);
+	    }
+	
+	    Http.options = {
+	        method: 'get',
+	        params: {},
+	        data: '',
+	        xhr: null,
+	        jsonp: 'callback',
+	        beforeSend: null,
+	        crossOrigin: null,
+	        emulateHTTP: false,
+	        emulateJSON: false
+	    };
+	
+	    Http.headers = {
+	        put: jsonType,
+	        post: jsonType,
+	        patch: jsonType,
+	        delete: jsonType,
+	        common: {'Accept': 'application/json, text/plain, */*'},
+	        custom: {'X-Requested-With': 'XMLHttpRequest'}
+	    };
+	
+	    ['get', 'put', 'post', 'patch', 'delete', 'jsonp'].forEach(function (method) {
+	
+	        Http[method] = function (url, data, success, options) {
+	
+	            if (_.isFunction(data)) {
+	                options = success;
+	                success = data;
+	                data = undefined;
+	            }
+	
+	            return this(url, _.extend({method: method, data: data, success: success}, options));
+	        };
+	    });
+	
+	    return _.http = Http;
+	};
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * XMLHttp request.
+	 */
+	
+	var Promise = __webpack_require__(13);
+	var XDomain = window.XDomainRequest;
+	
+	module.exports = function (_, options) {
+	
+	    var request = new XMLHttpRequest(), promise;
+	
+	    if (XDomain && options.crossOrigin) {
+	        request = new XDomainRequest(); options.headers = {};
+	    }
+	
+	    if (_.isPlainObject(options.xhr)) {
+	        _.extend(request, options.xhr);
+	    }
+	
+	    if (_.isFunction(options.beforeSend)) {
+	        options.beforeSend.call(this, request, options);
+	    }
+	
+	    promise = new Promise(function (resolve, reject) {
+	
+	        request.open(options.method, _.url(options), true);
+	
+	        _.each(options.headers, function (value, header) {
+	            request.setRequestHeader(header, value);
+	        });
+	
+	        var handler = function (event) {
+	
+	            request.ok = event.type === 'load';
+	
+	            if (request.ok && request.status) {
+	                request.ok = request.status >= 200 && request.status < 300;
+	            }
+	
+	            (request.ok ? resolve : reject)(request);
+	        };
+	
+	        request.onload = handler;
+	        request.onabort = handler;
+	        request.onerror = handler;
+	
+	        request.send(options.data);
+	    });
+	
+	    return promise;
+	};
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	/**
+	 * Promises/A+ polyfill v1.1.0 (https://github.com/bramstein/promis)
+	 */
+	
+	var RESOLVED = 0;
+	var REJECTED = 1;
+	var PENDING  = 2;
+	
+	function Promise(executor) {
+	
+	    this.state = PENDING;
+	    this.value = undefined;
+	    this.deferred = [];
+	
+	    var promise = this;
+	
+	    try {
+	        executor(function (x) {
+	            promise.resolve(x);
+	        }, function (r) {
+	            promise.reject(r);
+	        });
+	    } catch (e) {
+	        promise.reject(e);
+	    }
+	}
+	
+	Promise.reject = function (r) {
+	    return new Promise(function (resolve, reject) {
+	        reject(r);
+	    });
+	};
+	
+	Promise.resolve = function (x) {
+	    return new Promise(function (resolve, reject) {
+	        resolve(x);
+	    });
+	};
+	
+	Promise.all = function all(iterable) {
+	    return new Promise(function (resolve, reject) {
+	        var count = 0,
+	            result = [];
+	
+	        if (iterable.length === 0) {
+	            resolve(result);
+	        }
+	
+	        function resolver(i) {
+	            return function (x) {
+	                result[i] = x;
+	                count += 1;
+	
+	                if (count === iterable.length) {
+	                    resolve(result);
+	                }
+	            };
+	        }
+	
+	        for (var i = 0; i < iterable.length; i += 1) {
+	            iterable[i].then(resolver(i), reject);
+	        }
+	    });
+	};
+	
+	Promise.race = function race(iterable) {
+	    return new Promise(function (resolve, reject) {
+	        for (var i = 0; i < iterable.length; i += 1) {
+	            iterable[i].then(resolve, reject);
+	        }
+	    });
+	};
+	
+	var p = Promise.prototype;
+	
+	p.resolve = function resolve(x) {
+	    var promise = this;
+	
+	    if (promise.state === PENDING) {
+	        if (x === promise) {
+	            throw new TypeError('Promise settled with itself.');
+	        }
+	
+	        var called = false;
+	
+	        try {
+	            var then = x && x['then'];
+	
+	            if (x !== null && typeof x === 'object' && typeof then === 'function') {
+	                then.call(x, function (x) {
+	                    if (!called) {
+	                        promise.resolve(x);
+	                    }
+	                    called = true;
+	
+	                }, function (r) {
+	                    if (!called) {
+	                        promise.reject(r);
+	                    }
+	                    called = true;
+	                });
+	                return;
+	            }
+	        } catch (e) {
+	            if (!called) {
+	                promise.reject(e);
+	            }
+	            return;
+	        }
+	        promise.state = RESOLVED;
+	        promise.value = x;
+	        promise.notify();
+	    }
+	};
+	
+	p.reject = function reject(reason) {
+	    var promise = this;
+	
+	    if (promise.state === PENDING) {
+	        if (reason === promise) {
+	            throw new TypeError('Promise settled with itself.');
+	        }
+	
+	        promise.state = REJECTED;
+	        promise.value = reason;
+	        promise.notify();
+	    }
+	};
+	
+	p.notify = function notify() {
+	    var promise = this;
+	
+	    async(function () {
+	        if (promise.state !== PENDING) {
+	            while (promise.deferred.length) {
+	                var deferred = promise.deferred.shift(),
+	                    onResolved = deferred[0],
+	                    onRejected = deferred[1],
+	                    resolve = deferred[2],
+	                    reject = deferred[3];
+	
+	                try {
+	                    if (promise.state === RESOLVED) {
+	                        if (typeof onResolved === 'function') {
+	                            resolve(onResolved.call(undefined, promise.value));
+	                        } else {
+	                            resolve(promise.value);
+	                        }
+	                    } else if (promise.state === REJECTED) {
+	                        if (typeof onRejected === 'function') {
+	                            resolve(onRejected.call(undefined, promise.value));
+	                        } else {
+	                            reject(promise.value);
+	                        }
+	                    }
+	                } catch (e) {
+	                    reject(e);
+	                }
+	            }
+	        }
+	    });
+	};
+	
+	p.catch = function (onRejected) {
+	    return this.then(undefined, onRejected);
+	};
+	
+	p.then = function then(onResolved, onRejected) {
+	    var promise = this;
+	
+	    return new Promise(function (resolve, reject) {
+	        promise.deferred.push([onResolved, onRejected, resolve, reject]);
+	        promise.notify();
+	    });
+	};
+	
+	var queue = [];
+	var async = function (callback) {
+	    queue.push(callback);
+	
+	    if (queue.length === 1) {
+	        async.async();
+	    }
+	};
+	
+	async.run = function () {
+	    while (queue.length) {
+	        queue[0]();
+	        queue.shift();
+	    }
+	};
+	
+	if (window.MutationObserver) {
+	    var el = document.createElement('div');
+	    var mo = new MutationObserver(async.run);
+	
+	    mo.observe(el, {
+	        attributes: true
+	    });
+	
+	    async.async = function () {
+	        el.setAttribute("x", 0);
+	    };
+	} else {
+	    async.async = function () {
+	        setTimeout(async.run);
+	    };
+	}
+	
+	module.exports = window.Promise || Promise;
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * JSONP request.
+	 */
+	
+	var Promise = __webpack_require__(13);
+	
+	module.exports = function (_, options) {
+	
+	    var callback = '_jsonp' + Math.random().toString(36).substr(2), response = {}, script, body;
+	
+	    options.params[options.jsonp] = callback;
+	
+	    if (_.isFunction(options.beforeSend)) {
+	        options.beforeSend.call(this, {}, options);
+	    }
+	
+	    return new Promise(function (resolve, reject) {
+	
+	        script = document.createElement('script');
+	        script.src = _.url(options);
+	        script.type = 'text/javascript';
+	        script.async = true;
+	
+	        window[callback] = function (data) {
+	            body = data;
+	        };
+	
+	        var handler = function (event) {
+	
+	            delete window[callback];
+	            document.body.removeChild(script);
+	
+	            if (event.type === 'load' && !body) {
+	                event.type = 'error';
+	            }
+	
+	            response.ok = event.type !== 'error';
+	            response.status = response.ok ? 200 : 404;
+	            response.responseText = body ? body : event.type;
+	
+	            (response.ok ? resolve : reject)(response);
+	        };
+	
+	        script.onload = handler;
+	        script.onerror = handler;
+	
+	        document.body.appendChild(script);
+	    });
+	
+	};
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports) {
+
+	/**
+	 * Service for interacting with RESTful services.
+	 */
+	
+	module.exports = function (_) {
+	
+	    function Resource(url, params, actions, options) {
+	
+	        var self = this, resource = {};
+	
+	        actions = _.extend({},
+	            Resource.actions,
+	            actions
+	        );
+	
+	        _.each(actions, function (action, name) {
+	
+	            action = _.extend(true, {url: url, params: params || {}}, options, action);
+	
+	            resource[name] = function () {
+	                return (self.$http || _.http)(opts(action, arguments));
+	            };
+	        });
+	
+	        return resource;
+	    }
+	
+	    function opts(action, args) {
+	
+	        var options = _.extend({}, action), params = {}, data, success, error;
+	
+	        switch (args.length) {
+	
+	            case 4:
+	
+	                error = args[3];
+	                success = args[2];
+	
+	            case 3:
+	            case 2:
+	
+	                if (_.isFunction(args[1])) {
+	
+	                    if (_.isFunction(args[0])) {
+	
+	                        success = args[0];
+	                        error = args[1];
+	
+	                        break;
+	                    }
+	
+	                    success = args[1];
+	                    error = args[2];
+	
+	                } else {
+	
+	                    params = args[0];
+	                    data = args[1];
+	                    success = args[2];
+	
+	                    break;
+	                }
+	
+	            case 1:
+	
+	                if (_.isFunction(args[0])) {
+	                    success = args[0];
+	                } else if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
+	                    data = args[0];
+	                } else {
+	                    params = args[0];
+	                }
+	
+	                break;
+	
+	            case 0:
+	
+	                break;
+	
+	            default:
+	
+	                throw 'Expected up to 4 arguments [params, data, success, error], got ' + args.length + ' arguments';
+	        }
+	
+	        options.data = data;
+	        options.params = _.extend({}, options.params, params);
+	
+	        if (success) {
+	            options.success = success;
+	        }
+	
+	        if (error) {
+	            options.error = error;
+	        }
+	
+	        return options;
+	    }
+	
+	    Resource.actions = {
+	
+	        get: {method: 'GET'},
+	        save: {method: 'POST'},
+	        query: {method: 'GET'},
+	        update: {method: 'PUT'},
+	        remove: {method: 'DELETE'},
+	        delete: {method: 'DELETE'}
+	
+	    };
+	
+	    return _.resource = Resource;
+	};
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(17)
+	module.exports = __webpack_require__(21)
 	
 	if (module.exports.__esModule) module.exports = module.exports.default
-	;(typeof module.exports === "function" ? module.exports.options : module.exports).template = __webpack_require__(13)
+	;(typeof module.exports === "function" ? module.exports.options : module.exports).template = __webpack_require__(22)
 	if (false) {(function () {  module.hot.accept()
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), true)
@@ -12191,23 +13114,23 @@
 	})()}
 
 /***/ },
-/* 8 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(9);
+	var content = __webpack_require__(18);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(11)(content, {});
+	var update = __webpack_require__(20)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/vue-loader/lib/style-rewriter.js?id=_v-f736ebfa&file=app.vue!./../node_modules/stylus-loader/index.js!./../node_modules/vue-loader/lib/selector.js?type=style&index=0!./app.vue", function() {
-				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/vue-loader/lib/style-rewriter.js?id=_v-f736ebfa&file=app.vue!./../node_modules/stylus-loader/index.js!./../node_modules/vue-loader/lib/selector.js?type=style&index=0!./app.vue");
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/vue-loader/lib/style-rewriter.js?id=_v-f736ebfa&file=app.vue&scoped=true!./../node_modules/stylus-loader/index.js!./../node_modules/vue-loader/lib/selector.js?type=style&index=0!./app.vue", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/vue-loader/lib/style-rewriter.js?id=_v-f736ebfa&file=app.vue&scoped=true!./../node_modules/stylus-loader/index.js!./../node_modules/vue-loader/lib/selector.js?type=style&index=0!./app.vue");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -12217,10 +13140,10 @@
 	}
 
 /***/ },
-/* 9 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(10)();
+	exports = module.exports = __webpack_require__(19)();
 	// imports
 	
 	
@@ -12231,7 +13154,7 @@
 
 
 /***/ },
-/* 10 */
+/* 19 */
 /***/ function(module, exports) {
 
 	/*
@@ -12287,7 +13210,7 @@
 
 
 /***/ },
-/* 11 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -12541,7 +13464,7 @@
 
 
 /***/ },
-/* 12 */
+/* 21 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -12549,12 +13472,54 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	// <template lang="jade">
-	// .container
-	// 	.col-md-6.col-md-offset-3
-	// 		h1 Samsara Pistachio
-	// 			router-view
+	// <template>
+	// 	<!-- navigation bar -->
+	// 	<nav id="navbarMain" class="navbar navbar-default navbar-fixed-top" role="navigation">
+	// 	    <div class="container">
+	// 	        <div class="navbar-header">
+	// 	            <a class="navbar-brand" href="#">Samsara Pistachio</a>
+	// 	        </div>
+	// 	        <div>
+	// 		      <ul class="nav navbar-nav">
+	// 		         <li class="active"><a href="#">图书广场</a></li>
+	// 		         <li><a href="#">哈哈哈哈</a></li>
+	// 		         <li class="dropdown">
+	// 		            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+	// 		               用户中心
+	// 		               <b class="caret"></b>
+	// 		            </a>
+	// 		            <ul class="dropdown-menu">
+	// 		               <li><a href="#">当前用户：{{user.username}}</a></li>
+	// 					   <li class="divider"></li>
+	// 		               <li><a href="#">我的图书</a></li>
+	// 		               <li><a href="#">我的信息</a></li>
+	// 					   <li><a href="#"图书预约</a></li>
+	// 		               <li class="divider"></li>
+	// 		               <li><a href="#">我的操作纪录</a></li>
+	// 		               <li class="divider"></li>
+	// 		               <li><a href="#">注销</a></li>
+	// 		            </ul>
+	// 		         </li>
+	// 		      </ul>
+	// 		   </div>
+	// 	    </div>
+	// 	</nav>
+	// 	<div class="container">
+	// 		<div class="col-md-6 col-md-offset-3">
+	// 			<router-view></router-view>
+	// 		</div>
+	// 	</div>
+	// 	<!-- website foot bar -->
+	// 	<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
+	// 	    <div class="container">
+	// 	        <div class="navbar-header">
+	// 	            <p class="text-center navbar-text">Copyright © 2015, Samsara Pistachio, All Rights Reserved</p>
+	// 	        </div>
+	// 	        <div class="collapse navbar-collapse" id="ps-nv-col">
 	
+	// 	        </div>
+	// 	    </div>
+	// 	</nav>
 	// </template>
 	
 	// <script>
@@ -12567,30 +13532,55 @@
 	};
 	// </script>
 
-	// <style lang="stylus">
+	// <style lang="stylus" scoped>
 
 	// </style>
 
 /***/ },
-/* 13 */
+/* 22 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"container\"><div class=\"col-md-6 col-md-offset-3\"><h1>Samsara Pistachio<router-view></router-view></h1></div></div>";
+	module.exports = "<!-- navigation bar -->\n\t<nav id=\"navbarMain\" class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\" _v-f736ebfa=\"\">\n\t    <div class=\"container\" _v-f736ebfa=\"\">\n\t        <div class=\"navbar-header\" _v-f736ebfa=\"\">\n\t            <a class=\"navbar-brand\" href=\"#\" _v-f736ebfa=\"\">Samsara Pistachio</a>\n\t        </div>\n\t        <div _v-f736ebfa=\"\">\n\t\t      <ul class=\"nav navbar-nav\" _v-f736ebfa=\"\">\n\t\t         <li class=\"active\" _v-f736ebfa=\"\"><a href=\"#\" _v-f736ebfa=\"\">图书广场</a></li>\n\t\t         <li _v-f736ebfa=\"\"><a href=\"#\" _v-f736ebfa=\"\">哈哈哈哈</a></li>\n\t\t         <li class=\"dropdown\" _v-f736ebfa=\"\">\n\t\t            <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" _v-f736ebfa=\"\">\n\t\t               用户中心\n\t\t               <b class=\"caret\" _v-f736ebfa=\"\"></b>\n\t\t            </a>\n\t\t            <ul class=\"dropdown-menu\" _v-f736ebfa=\"\">\n\t\t               <li _v-f736ebfa=\"\"><a href=\"#\" _v-f736ebfa=\"\">当前用户：{{user.username}}</a></li>\n\t\t\t\t\t   <li class=\"divider\" _v-f736ebfa=\"\"></li>\n\t\t               <li _v-f736ebfa=\"\"><a href=\"#\" _v-f736ebfa=\"\">我的图书</a></li>\n\t\t               <li _v-f736ebfa=\"\"><a href=\"#\" _v-f736ebfa=\"\">我的信息</a></li>\n\t\t\t\t\t   <li _v-f736ebfa=\"\"><a href=\"#\" 图书预约<=\"\" a=\"\" _v-f736ebfa=\"\" _v-f736ebfa=\"\" _v-f736ebfa=\"\"></a></li><a href=\"#\" 图书预约<=\"\" a=\"\" _v-f736ebfa=\"\" _v-f736ebfa=\"\" _v-f736ebfa=\"\">\n\t\t               <li class=\"divider\" _v-f736ebfa=\"\"></li>\n\t\t               </a><li _v-f736ebfa=\"\"><a href=\"#\" 图书预约<=\"\" a=\"\" _v-f736ebfa=\"\" _v-f736ebfa=\"\" _v-f736ebfa=\"\"></a><a href=\"#\" _v-f736ebfa=\"\">我的操作纪录</a></li>\n\t\t               <li class=\"divider\" _v-f736ebfa=\"\"></li>\n\t\t               <li _v-f736ebfa=\"\"><a href=\"#\" _v-f736ebfa=\"\">注销</a></li>\n\t\t            </ul>\n\t\t         </li>\n\t\t      </ul>\n\t\t   </div>\n\t    </div>\n\t</nav>\n\t<div class=\"container\" _v-f736ebfa=\"\">\n\t\t<div class=\"col-md-6 col-md-offset-3\" _v-f736ebfa=\"\">\n\t\t\t<router-view _v-f736ebfa=\"\"></router-view>\n\t\t</div>\n\t</div>\n\t<!-- website foot bar -->\n\t<nav class=\"navbar navbar-default navbar-fixed-bottom\" role=\"navigation\" _v-f736ebfa=\"\">\n\t    <div class=\"container\" _v-f736ebfa=\"\">\n\t        <div class=\"navbar-header\" _v-f736ebfa=\"\">\n\t            <p class=\"text-center navbar-text\" _v-f736ebfa=\"\">Copyright © 2015, Samsara Pistachio, All Rights Reserved</p>\n\t        </div>\n\t        <div class=\"collapse navbar-collapse\" id=\"ps-nv-col\" _v-f736ebfa=\"\">\n\n\t        </div>\n\t    </div>\n\t</nav>";
 
 /***/ },
-/* 14 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(15)
-	module.exports = __webpack_require__(17)
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.configRouter = configRouter;
+	function configRouter(router) {
+	    router.map({
+	        '/book/:bookId': {
+	            component: __webpack_require__(24),
+	            name: 'get_book_detail'
+	        },
+	        '/404': {
+	            component: __webpack_require__(27),
+	            name: 'common_error'
+	        },
+	        '/index': {
+	            component: __webpack_require__(30)
+	        }
+	    });
+	}
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(25)
 	
 	if (module.exports.__esModule) module.exports = module.exports.default
-	;(typeof module.exports === "function" ? module.exports.options : module.exports).template = __webpack_require__(18)
+	;(typeof module.exports === "function" ? module.exports.options : module.exports).template = __webpack_require__(26)
 	if (false) {(function () {  module.hot.accept()
 	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), true)
 	  if (!hotAPI.compatible) return
-	  var id = "/media/sczyh30/0000678400004823/linux/project/pistachio-frontend-vue/app/component/test.vue"
+	  var id = "/media/sczyh30/0000678400004823/linux/project/pistachio-frontend-vue/app/component/book_detail.vue"
 	  if (!module.hot.data) {
 	    hotAPI.createRecord(id, module.exports)
 	  } else {
@@ -12599,23 +13589,134 @@
 	})()}
 
 /***/ },
-/* 15 */
+/* 25 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	// <template>
+	//     <p>Test - Book Detail</p>
+	//     {{book.author}}
+	//     {{$route.params.bookId}}
+	// </template>
+	
+	// <script type="babel">
+	var BOOK_API = 'http://127.0.0.1:8080/Pistachio/api/book/';
+	
+	exports.default = {
+	    data: function data() {
+	        //console.log($route.params.bookId)
+	    },
+	    ready: function ready() {
+	        this.$http.get(BOOK_API, function (data, status, request) {
+	            //if(data.code == 200)
+	            this.$set('book', data);
+	            //else
+	            //this.$set('error', data)
+	        }).error(function (data, status, request) {
+	            $route.go({ name: 'common_error' });
+	        });
+	    }
+	    //console.log(this.$route.params.bookId)
+	
+	};
+	
+	// </script>
+
+/***/ },
+/* 26 */
+/***/ function(module, exports) {
+
+	module.exports = "<p>Test - Book Detail</p>\n    {{book.author}}\n    {{$route.params.bookId}}";
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(28)
+	
+	if (module.exports.__esModule) module.exports = module.exports.default
+	;(typeof module.exports === "function" ? module.exports.options : module.exports).template = __webpack_require__(29)
+	if (false) {(function () {  module.hot.accept()
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), true)
+	  if (!hotAPI.compatible) return
+	  var id = "/media/sczyh30/0000678400004823/linux/project/pistachio-frontend-vue/app/component/error/404.vue"
+	  if (!module.hot.data) {
+	    hotAPI.createRecord(id, module.exports)
+	  } else {
+	    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+	  }
+	})()}
+
+/***/ },
+/* 28 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	// <template lang="jade">
+	// #404-eh
+	// 	h1 你来到了没有书籍的荒原
+	// </template>
+	
+	// <script type="babel">
+	exports.default = {
+	  data: function data() {}
+	};
+	// </script>
+
+/***/ },
+/* 29 */
+/***/ function(module, exports) {
+
+	module.exports = "<div id=\"404-eh\"><h1>你来到了没有书籍的荒原</h1></div>";
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(31)
+	module.exports = __webpack_require__(33)
+	
+	if (module.exports.__esModule) module.exports = module.exports.default
+	;(typeof module.exports === "function" ? module.exports.options : module.exports).template = __webpack_require__(34)
+	if (false) {(function () {  module.hot.accept()
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), true)
+	  if (!hotAPI.compatible) return
+	  var id = "/media/sczyh30/0000678400004823/linux/project/pistachio-frontend-vue/app/component/index.vue"
+	  if (!module.hot.data) {
+	    hotAPI.createRecord(id, module.exports)
+	  } else {
+	    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+	  }
+	})()}
+
+/***/ },
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(16);
+	var content = __webpack_require__(32);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(11)(content, {});
+	var update = __webpack_require__(20)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/vue-loader/lib/style-rewriter.js?id=_v-1ab6f6f2&file=test.vue!./../../node_modules/vue-loader/lib/selector.js?type=style&index=0!./test.vue", function() {
-				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/vue-loader/lib/style-rewriter.js?id=_v-1ab6f6f2&file=test.vue!./../../node_modules/vue-loader/lib/selector.js?type=style&index=0!./test.vue");
+			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/vue-loader/lib/style-rewriter.js?id=_v-54fda2a2&file=index.vue&scoped=true!./../../node_modules/vue-loader/lib/selector.js?type=style&index=0!./index.vue", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/vue-loader/lib/style-rewriter.js?id=_v-54fda2a2&file=index.vue&scoped=true!./../../node_modules/vue-loader/lib/selector.js?type=style&index=0!./index.vue");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -12625,10 +13726,10 @@
 	}
 
 /***/ },
-/* 16 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(10)();
+	exports = module.exports = __webpack_require__(19)();
 	// imports
 	
 	
@@ -12639,7 +13740,7 @@
 
 
 /***/ },
-/* 17 */
+/* 33 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -12648,177 +13749,63 @@
 	  value: true
 	});
 	// <template>
-	// <table class="table table-striped">
-	// <caption>Samsara Pistachio Function Unit Test</caption>
-	//    <thead>
-	//       <tr>
-	//          <th>序号</th>
-	//          <th>书名</th>
-	//          <th>作者</th>
-	//          <th>价钱</th>
-	//       </tr>
-	//    </thead>
-	// 	<tbody>
-	// 		<tr v-for="book in books">
-	// 			<td>{{book.id}}</td>
-	// 			<td>{{book.name}}</td>
-	// 			<td>{{book.author}}</td>
-	// 			<td>{{book.price}}</td>
-	// 		</tr>
-	// 	</tbody>
-	// </table>
-	
+	//     <table class="table table-striped">
+	//     <caption>Samsara Pistachio 测试 - 最新图书</caption>
+	//        <thead>
+	//           <tr>
+	//              <th>ISBN</th>
+	//              <th>书名</th>
+	//              <th>作者</th>
+	//              <th>出版社</th>
+	//              <th>页数</th>
+	//           </tr>
+	//        </thead>
+	//     	<tbody>
+	//     		<tr v-for="book in books">
+	//     			<td>{{book.isbn}}</td>
+	//     			<td><a v-link="'/book/' + book.isbn">{{book.name}}</a></td>
+	//     			<td>{{book.author}}</td>
+	//     			<td>{{book.publisher}}</td>
+	//                 <td>{{book.page}}</td>
+	//     		</tr>
+	//     	</tbody>
+	//     </table>
 	// </template>
 	
-	// <script>
+	// <script type="babel">
 	exports.default = {
-	  data: function data() {
-	    return {
-	      books: [{
-	        id: 1,
-	        author: '曹雪芹',
-	        name: '红楼梦',
-	        price: 32.0
-	      }, {
-	        id: 2,
-	        author: '施耐庵',
-	        name: '水浒传',
-	        price: 30.0
-	      }, {
-	        id: '3',
-	        author: '罗贯中',
-	        name: '三国演义',
-	        price: 24.0
-	      }, {
-	        id: 4,
-	        author: '吴承恩',
-	        name: '西游记',
-	        price: 20.0
-	      }]
-	    };
+	  ready: function ready() {
+	    this.$http.get('http://127.0.0.1:8080/Pistachio/api/book/latest', function (data, status, request) {
+	      this.$set('books', data);
+	    }).error(function (data, status, request) {
+	      // handle error
+	      //$route.go({name: 'common_error'})
+	    });
 	  }
 	};
 	// </script>
 
-	// <style>
+	// <style type="text/css" scoped>
 
 	// </style>
 
 /***/ },
-/* 18 */
+/* 34 */
 /***/ function(module, exports) {
 
-	module.exports = "<table class=\"table table-striped\">\n<caption>Samsara Pistachio Function Unit Test</caption>\n   <thead>\n      <tr>\n         <th>序号</th>\n         <th>书名</th>\n         <th>作者</th>\n         <th>价钱</th>\n      </tr>\n   </thead>\n\t<tbody>\n\t\t<tr v-for=\"book in books\">\n\t\t\t<td>{{book.id}}</td>\n\t\t\t<td>{{book.name}}</td>\n\t\t\t<td>{{book.author}}</td>\n\t\t\t<td>{{book.price}}</td>\n\t\t</tr>\n\t</tbody>\n</table>";
+	module.exports = "<table class=\"table table-striped\" _v-54fda2a2=\"\">\n    <caption _v-54fda2a2=\"\">Samsara Pistachio 测试 - 最新图书</caption>\n       <thead _v-54fda2a2=\"\">\n          <tr _v-54fda2a2=\"\">\n             <th _v-54fda2a2=\"\">ISBN</th>\n             <th _v-54fda2a2=\"\">书名</th>\n             <th _v-54fda2a2=\"\">作者</th>\n             <th _v-54fda2a2=\"\">出版社</th>\n             <th _v-54fda2a2=\"\">页数</th>\n          </tr>\n       </thead>\n    \t<tbody _v-54fda2a2=\"\">\n    \t\t<tr v-for=\"book in books\" _v-54fda2a2=\"\">\n    \t\t\t<td _v-54fda2a2=\"\">{{book.isbn}}</td>\n    \t\t\t<td _v-54fda2a2=\"\"><a v-link=\"'/book/' + book.isbn\" _v-54fda2a2=\"\">{{book.name}}</a></td>\n    \t\t\t<td _v-54fda2a2=\"\">{{book.author}}</td>\n    \t\t\t<td _v-54fda2a2=\"\">{{book.publisher}}</td>\n                <td _v-54fda2a2=\"\">{{book.page}}</td>\n    \t\t</tr>\n    \t</tbody>\n    </table>";
 
 /***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(20)
-	module.exports = __webpack_require__(22)
-	
-	if (module.exports.__esModule) module.exports = module.exports.default
-	;(typeof module.exports === "function" ? module.exports.options : module.exports).template = __webpack_require__(23)
-	if (false) {(function () {  module.hot.accept()
-	  var hotAPI = require("vue-hot-reload-api")
-	  hotAPI.install(require("vue"), true)
-	  if (!hotAPI.compatible) return
-	  var id = "/media/sczyh30/0000678400004823/linux/project/pistachio-frontend-vue/app/component/test2.vue"
-	  if (!module.hot.data) {
-	    hotAPI.createRecord(id, module.exports)
-	  } else {
-	    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
-	  }
-	})()}
-
-/***/ },
-/* 20 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(21);
+	var content = __webpack_require__(36);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(11)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/vue-loader/lib/style-rewriter.js?id=_v-3c3f90b0&file=test2.vue!./../../node_modules/vue-loader/lib/selector.js?type=style&index=0!./test2.vue", function() {
-				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/vue-loader/lib/style-rewriter.js?id=_v-3c3f90b0&file=test2.vue!./../../node_modules/vue-loader/lib/selector.js?type=style&index=0!./test2.vue");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(10)();
-	// imports
-	
-	
-	// module
-	exports.push([module.id, ".cl_blablue {\n    color: rgb(61, 134, 198);\n}", ""]);
-	
-	// exports
-
-
-/***/ },
-/* 22 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	// <template lang="jade">
-	// .container
-	//     .h2 Samsara Route Test
-	//     p {{msg_t2}}
-	// </template>
-	
-	// <script lang="babel">
-	exports.default = {
-	    data: function data() {
-	        return {
-	            msg_t2: 'Fucking Scala @Scala~'
-	        };
-	    }
-	};
-	// </script>
-
-	// <style>
-	// .cl_blablue {
-	//     color: rgb(61, 134, 198);
-	// }
-	// </style>
-
-/***/ },
-/* 23 */
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"container\"><div class=\"h2\">Samsara Route Test</div><p>{{msg_t2}}</p></div>";
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-	
-	// load the styles
-	var content = __webpack_require__(25);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(11)(content, {});
+	var update = __webpack_require__(20)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -12835,10 +13822,10 @@
 	}
 
 /***/ },
-/* 25 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(10)();
+	exports = module.exports = __webpack_require__(19)();
 	// imports
 	
 	

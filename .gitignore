@@ -1,6 +1,10 @@
 # node library
 /node_modules
 
+# production
+/dist
+
 # project files
 .idea
 *.iml
+dev_note.md
