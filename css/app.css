@@ -22,3 +22,30 @@ body { padding-top: 70px; padding-bottom: 70px;}
             color-stop(0.52, rgb(247,247,247))
     );
 }
+
+#pic_left {
+    float: left;
+    text-align: center;
+    margin: 3px 12px 0 0;
+    max-width: 100px;
+    max-height: 140px;
+    overflow: hidden;
+}
+
+#info-right {
+    float: left;
+    margin-left: 10px;
+    max-width: 260px;
+    word-wrap: break-word;
+}
+
+#process-bar-right {
+    float: left;
+    margin-left: 20px;
+    max-width: 248px;
+    word-wrap: break-word;
+}
+
+.book-title-text {
+    font-size: xx-large;
+}

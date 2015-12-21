@@ -1,5 +1,6 @@
 # node library
 /node_modules
+/temp
 
 # production
 /dist

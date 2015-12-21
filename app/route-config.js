@@ -12,4 +12,9 @@ export function configRouter (router) {
             component: require('./component/index.vue')
         }
     })
+
+    // redirect
+    router.redirect({
+        '*': '/index'
+    })
 }

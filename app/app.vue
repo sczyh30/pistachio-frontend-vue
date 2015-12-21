@@ -31,9 +31,7 @@
 	    </div>
 	</nav>
 	<div class="container">
-		<div class="col-md-6 col-md-offset-3">
-			<router-view></router-view>
-		</div>
+		<router-view></router-view>
 	</div>
 	<!-- website foot bar -->
 	<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
