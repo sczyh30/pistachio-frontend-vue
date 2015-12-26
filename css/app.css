@@ -2,10 +2,9 @@
  * Pistachio common style
  */
 
-/* preserve space for nav bar */
+/* preserve space for nav bar
+ */
 body { padding-top: 70px; padding-bottom: 70px;}
-
-
 
 .bg-nav-black {
     background-image: linear-gradient(bottom, rgb(240,240,240) 3%, rgb(247,247,247) 52%);
@@ -41,11 +40,27 @@ body { padding-top: 70px; padding-bottom: 70px;}
 
 #process-bar-right {
     float: left;
-    margin-left: 20px;
+    margin-top: 15px;
+    margin-left: 40px;
     max-width: 248px;
     word-wrap: break-word;
 }
 
 .book-title-text {
     font-size: xx-large;
+}
+
+.book-title-xlarge {
+    word-wrap: normal;
+    font-size: x-large;
+}
+
+.book-pic-center {
+    text-align: center;
+    overflow: hidden;
+}
+
+.img-little-book {
+    height: 140px;
+    width: 100px;
 }

@@ -6,5 +6,4 @@ before_script:
   - npm install
 
 script:
-  - gulp
   - webpack

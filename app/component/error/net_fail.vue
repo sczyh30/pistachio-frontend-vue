@@ -1,4 +1,5 @@
 <template>
+    <div class="container">
     <div class="row clearfix">
             <div class="col-md-10">
                 <div class="panel panel-danger">
@@ -13,6 +14,8 @@
                 </div>
             </div>
         </div>
+</div>
+
 </template>
 
 <script type="babel">
