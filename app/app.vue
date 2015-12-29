@@ -18,25 +18,33 @@
 		         <li><a href="#!/index">图书广场</a></li>
 		         <li><a href="#!/book/list">图书检索</a></li>
 			 </ul>
-			 <ul class="nav navbar-nav navbar-right">
-		         <li class="dropdown">
-		            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-		               当前用户：sczyh30
-		               <b class="caret"></b>
-		            </a>
-		            <ul class="dropdown-menu">
-		               <li><a href="#!/user/5">用户中心</a></li>
-					   <li class="divider"></li>
-		               <li><a v-link="">我的图书</a></li>
-		               <li><a v-link="">我的信息</a></li>
-					   <li><a v-link="">图书预约</a></li>
-		               <li class="divider"></li>
-		               <li><a href="#!/index">我的操作纪录</a></li>
-		               <li class="divider"></li>
-		               <li><a v-link="">注销</a></li>
-		            </ul>
-		         </li>
-		      </ul>
+			 <div v-if="user.code == null || user.code < 4000">
+				 <ul class="nav navbar-nav navbar-right">
+			         <li class="dropdown">
+			            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+			               当前用户：sczyh30
+			               <b class="caret"></b>
+			            </a>
+			            <ul class="dropdown-menu">
+			               <li><a href="#!/user/5">用户中心</a></li>
+						   <li class="divider"></li>
+			               <li><a v-link="">我的图书</a></li>
+			               <li><a v-link="">我的信息</a></li>
+						   <li><a v-link="">图书预约</a></li>
+			               <li class="divider"></li>
+			               <li><a href="#!/index">我的操作纪录</a></li>
+			               <li class="divider"></li>
+			               <li><a v-link="">注销</a></li>
+			            </ul>
+			         </li>
+			      </ul>
+		  	</div>
+			  <div v-if="user.code > 4000">
+				  <ul class="nav navbar-nav navbar-right">
+					 <li><a href="#!/login">登录</a></li>
+			         <li><a href="#!/register">注册</a></li>
+				 </ul>
+			  </div>
 		   </div>
 	    </div>
 	</nav>
@@ -57,6 +65,26 @@
 	    </div>
 	</nav>
 </template>
+
+<script lang="babel">
+import LocalStorage from './service/storage'
+
+	export default {
+		data() {
+			return {
+				user: {}
+			}
+		},
+		methods: {
+			getUser: function () {
+				return LocalStorage.getItem('user', {code: 4001})
+			}
+		},
+		ready() {
+			this.$set('user',  this.getUser())
+		}
+	}
+</script>
 
 <style lang="stylus">
 .view

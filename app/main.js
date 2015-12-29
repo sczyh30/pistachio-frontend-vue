@@ -3,9 +3,9 @@ import VueRouter from 'vue-router'
 import VueRes from 'vue-resource'
 import App from './app.vue'
 
-import { configRouter } from './route-config'
+//import LocalStorage from './service/storage'
 
-import { SHA256 } from './service/encrypt'
+import { configRouter } from './route-config'
 
 
 //import IndexPage from './component/index.vue'

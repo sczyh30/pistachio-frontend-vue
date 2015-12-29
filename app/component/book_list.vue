@@ -48,8 +48,7 @@
             return this.$http.get('http://127.0.0.1:8080/Pistachio/api/book/latest',function (data, status, request) {
      			this.$set('books', data)
      		}).error(function (data, status, request) {
-     			// handle error
-                //this.$route.go({path: '/404'})
+     			to.$route.go({path: '/404'})
      		})
         }
 
